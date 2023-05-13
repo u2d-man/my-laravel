@@ -23,6 +23,10 @@ class HomeController extends Controller
      */
     public function index()
     {
+        $var = 1;
+
+        $string = 'hi xdebug';
+
         return view('home');
     }
 }
