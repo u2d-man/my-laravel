@@ -2,3 +2,6 @@
 .env
 
 .vscode
+.DS_Store
+infra/.DS_Store
+infra/docker/.DS_Store

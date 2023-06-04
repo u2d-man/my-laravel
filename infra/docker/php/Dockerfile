@@ -14,6 +14,19 @@ ENV TZ=UTC \
 
 COPY --from=composer:2.4 /usr/bin/composer /usr/bin/composer
 
+RUN pecl install xdebug \
+  && docker-php-ext-enable xdebug
+
+FROM base AS development
+
+COPY ./infra/docker/php/php.development.ini /usr/local/etc/php/php.ini
+COPY ./infra/docker/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+
+FROM base AS deploy
+
+COPY ./infra/docker/php/php.deploy.ini /usr/local/etc/php/php.ini
+COPY ./src /workspace
+
 RUN apt-get update \
   && apt-get -y install --no-install-recommends \
     locales \
@@ -33,22 +46,6 @@ RUN apt-get update \
     bcmath \
   && composer config -g process-timeout 3600 \
   && composer config -g repos.packagist composer https://packagist.org
-
-FROM base AS development
-
-COPY ./infra/docker/php/php.development.ini /usr/local/etc/php/php.ini
-
-FROM development AS development-xdebug
-
-RUN pecl install xdebug && \
-  docker-php-ext-enable xdebug
-
-COPY ./infra/docker/php/xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
-
-FROM base AS deploy
-
-COPY ./infra/docker/php/php.deploy.ini /usr/local/etc/php/php.ini
-COPY ./src /workspace
 
 RUN composer install -q -n --no-ansi --no-dev --no-scripts --no-progress --prefer-dist \
   && chmod -R 777 storage bootstrap/cache \
