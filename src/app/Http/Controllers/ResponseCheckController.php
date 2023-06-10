@@ -13,6 +13,8 @@ class ResponseCheckController extends Controller
      */
     public function returnStdClass(): stdClass
     {
+
+
         return (object)[
             'message' => 'success',
             'data' => [
